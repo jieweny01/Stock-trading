@@ -97,4 +97,3 @@ isProject: false
 2. Supabase：Redirect + Site URL（本地 + 线上）。
 3. GitHub：Pages + Secrets + 子路径 `VITE_BASE`。
 4. 冒烟：登录后录一笔流水（本地与线上各一遍）。
-
