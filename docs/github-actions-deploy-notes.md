@@ -60,13 +60,44 @@
 
 ---
 
+## 问题三：`VITE_SUPABASE_URL` 误配（控制台 404、线上注册/登录异常）
+
+### 现象
+
+- 浏览器 **控制台（Console）** 或 **网络（Network）** 中出现对 **`*.supabase.co`** 请求的 **404**，URL 里还能看到 **`/Stock-trading`**（或仓库子路径）等不该出现在 Supabase 域名后的片段。
+- 线上 **邮箱注册** 报错（例如 **`Invalid path specified in request URL`** 等），或与 Auth 相关的请求明显不正常。
+- 本地若 `.env` 里同样写错，本地也会出现类似问题。
+
+### 原因
+
+- **GitHub Actions Secret**（或本地 `web/.env`）里的 **`VITE_SUPABASE_URL` 必须是 Supabase 控制台里的「纯 Project URL」**，形态为：
+  - `https://<project-ref>.supabase.co`
+- **常见误操作**：把 **GitHub Pages 子路径**拼进了 Supabase 地址，例如：
+  - `https://xxx.supabase.co/Stock-trading` ❌  
+  - `https://xxx.supabase.co/Stock-trading/` ❌  
+  - 或任意 **`/auth/v1`、`/rest/v1` 等后缀** ❌（SDK 会自动拼接这些路径）。
+- 子路径部署只影响 **静态资源前缀**，由 **`VITE_BASE`**（如 `/Stock-trading/`）单独配置，**与 Supabase URL 无关**。
+
+### 处理
+
+1. 打开 Supabase：**Project Settings → API**，复制 **Project URL**（仅此一行，无尾部路径）。
+2. 在 GitHub：**Settings → Secrets and variables → Actions** 中，将 **`VITE_SUPABASE_URL`** 设为上述地址；确认 **没有**多出来的仓库名或 API 路径。
+3. 子路径站点另设 Secret：**`VITE_BASE=/Stock-trading/`**（前后斜杠与仓库名一致，以实际仓库名为准）。
+4. 修改 Secret 后**必须重新跑一次**「Deploy to GitHub Pages」工作流（或 push 触发部署），前端打包才会带上正确变量。
+
+### 预防
+
+- 文档与 checklist 中区分清楚：**`VITE_SUPABASE_URL` = 仅项目根 URL**；**`VITE_BASE` = Pages 子路径**（如 `/仓库名/`）。
+
+---
+
 ## 健康检查清单（部署前）
 
 | 检查项             | 说明                                                           |
 | ------------------ | -------------------------------------------------------------- |
 | `pages.yml` 编码   | UTF-8（无 BOM）                                                |
 | 仓库根 `.gitignore` | 已忽略 `web/node_modules`、`web/dist`、`.env`                  |
-| GitHub Secrets     | `VITE_SUPABASE_URL`、`VITE_SUPABASE_ANON_KEY`；子路径需 `VITE_BASE` |
+| GitHub Secrets     | **`VITE_SUPABASE_URL`**：仅 `https://<ref>.supabase.co`；**`VITE_SUPABASE_ANON_KEY`**；子路径另设 **`VITE_BASE`**（如 `/Stock-trading/`），勿拼进 Supabase URL |
 | Pages Source       | **GitHub Actions**（非 Deploy from a branch）                   |
 | Supabase Auth      | Redirect URLs 含线上 Pages 地址                                |
 
