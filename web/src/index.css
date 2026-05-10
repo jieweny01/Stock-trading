@@ -1,0 +1,364 @@
+/* 黑金配色 + 原先衬线字体（Cormorant / Source Serif 4） */
+:root {
+  --bg: #0c0c0e;
+  --bg-elev: #111113;
+  --bg-card: #141416;
+  --bg-input: #0f0f11;
+  --border: rgba(212, 175, 55, 0.22);
+  --border-focus: rgba(224, 194, 101, 0.45);
+  --gold: #d4af37;
+  --gold-bright: #e8cf6a;
+  --gold-muted: #a68b3c;
+  --text: #e8e6e1;
+  --text-muted: #9b9893;
+  --text-dim: #7a7874;
+  --btn-ink: #12100a;
+  --danger-bg: #3d2028;
+  --danger-border: rgba(200, 120, 130, 0.4);
+  --font-display: 'Cormorant Garamond', 'Palatino Linotype', Palatino, Georgia, serif;
+  --font-body: 'Source Serif 4', Georgia, 'Times New Roman', serif;
+  font-family: var(--font-body);
+  line-height: 1.58;
+  font-size: 15px;
+  color: var(--text);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+* { box-sizing: border-box; }
+
+html {
+  background: var(--bg);
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+}
+
+a {
+  color: var(--gold-bright);
+  text-decoration-color: rgba(212, 175, 55, 0.35);
+}
+a:hover {
+  color: #f2e6a8;
+}
+
+input, select, button, textarea {
+  font: inherit;
+  padding: 0.42rem 0.55rem;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--bg-input);
+  color: var(--text);
+}
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.12);
+}
+
+button {
+  cursor: pointer;
+  background: linear-gradient(180deg, #e4c860 0%, #c9a22e 48%, #a88420 100%);
+  border: 1px solid rgba(232, 207, 106, 0.55);
+  color: var(--btn-ink);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.18) inset, 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+button:hover {
+  filter: brightness(1.06);
+}
+button:active {
+  filter: brightness(0.96);
+  transform: translateY(1px);
+}
+
+button.secondary {
+  background: transparent;
+  color: var(--gold-bright);
+  border-color: rgba(212, 175, 55, 0.4);
+  box-shadow: none;
+}
+button.secondary:hover {
+  background: rgba(212, 175, 55, 0.08);
+}
+
+button.danger {
+  background: linear-gradient(180deg, #5a3038 0%, var(--danger-bg) 100%);
+  border: 1px solid var(--danger-border);
+  color: #f2dedf;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+button.danger:hover {
+  filter: brightness(1.06);
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 0.9rem;
+}
+th, td {
+  border: 1px solid rgba(212, 175, 55, 0.18);
+  padding: 0.42rem 0.5rem;
+  text-align: left;
+}
+tbody tr:nth-child(even) {
+  background: rgba(255, 255, 255, 0.02);
+}
+th {
+  background: var(--bg-elev);
+  color: var(--gold-bright);
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.app {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 1.25rem 1.25rem 3rem;
+}
+.app > h1 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 2rem;
+  letter-spacing: 0.06em;
+  margin: 0 0 0.4rem;
+  color: var(--gold-bright);
+}
+
+.tabs {
+  display: flex;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.1rem;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+}
+.tabs button {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-muted);
+  box-shadow: none;
+  font-weight: 500;
+}
+.tabs button:hover:not(:disabled) {
+  background: rgba(212, 175, 55, 0.06);
+  border-color: rgba(212, 175, 55, 0.18);
+  color: var(--text);
+}
+.tabs button.active {
+  outline: none;
+  background: rgba(212, 175, 55, 0.1);
+  border-color: rgba(212, 175, 55, 0.32);
+  color: var(--gold-bright);
+  box-shadow: inset 0 -2px 0 var(--gold);
+}
+.tabs button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem 1.15rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
+}
+.card h2 {
+  font-family: var(--font-display);
+  font-size: 1.45rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: var(--gold-bright);
+  margin: 0 0 0.65rem;
+  padding-bottom: 0.45rem;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.22);
+}
+
+.holdings-trial-section {
+  margin-top: 1rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid rgba(212, 175, 55, 0.18);
+}
+.holdings-trial-section:first-of-type {
+  border-top: none;
+  padding-top: 0.35rem;
+  margin-top: 0.25rem;
+}
+.holdings-trial-h3 {
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--gold-muted);
+  margin: 0 0 0.55rem;
+}
+
+/* 持仓表：现价列收窄（输入不必拉满格） */
+.holdings-table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.holdings-table-wrap .holdings-table {
+  min-width: 56rem;
+  table-layout: auto;
+}
+.holdings-table {
+  table-layout: fixed;
+  width: 100%;
+}
+.holdings-table .holdings-col-livepx,
+.holdings-table .holdings-col-closepx {
+  width: 5.5rem;
+  max-width: 6rem;
+  white-space: nowrap;
+}
+.holdings-table .holdings-px-input {
+  width: 100%;
+  max-width: 5.25rem;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.holdings-track-chart {
+  width: 100%;
+  max-height: 260px;
+  display: block;
+  margin: 0;
+}
+
+.holdings-track-layout {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem 1.25rem;
+  align-items: stretch;
+  margin-top: 0.35rem;
+}
+.holdings-track-col-left {
+  flex: 1 1 200px;
+  min-width: min(100%, 220px);
+  max-width: 100%;
+}
+.holdings-track-col-right {
+  flex: 1 1 300px;
+  min-width: min(100%, 280px);
+  display: flex;
+  align-items: stretch;
+}
+.holdings-track-chart-panel {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  border: 1px solid rgba(212, 175, 55, 0.18);
+  border-radius: 8px;
+  padding: 0.45rem 0.55rem;
+  background: rgba(0, 0, 0, 0.2);
+  box-sizing: border-box;
+}
+.holdings-track-chart-placeholder {
+  margin: 0;
+  text-align: center;
+  line-height: 1.55;
+  padding: 0.5rem 0.75rem;
+  max-width: 17rem;
+}
+
+.muted {
+  color: var(--text-muted);
+  font-size: 0.88rem;
+}
+
+.row {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  margin-bottom: 0.5rem;
+}
+.row label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.22rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+details.trades-details summary {
+  cursor: pointer;
+  color: var(--gold-muted);
+  font-size: 0.88rem;
+  margin-top: 0.75rem;
+  user-select: none;
+}
+details.trades-details[open] summary {
+  color: var(--gold);
+}
+
+.trades-group-header td {
+  background: rgba(212, 175, 55, 0.09);
+  border-color: rgba(212, 175, 55, 0.28);
+  font-size: 0.88rem;
+  padding: 0.5rem 0.45rem;
+}
+.trades-group-meta {
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+.trades-main-row label { min-width: 4.5rem; }
+.trades-table { font-size: 0.86rem; white-space: nowrap; }
+.trades-table th, .trades-table td { padding: 0.36rem 0.45rem; }
+.trades-est-preview .trades-est-sub { opacity: 0.82; font-size: 0.82em; }
+@media (max-width: 700px) {
+  .trades-est-preview .trades-est-sub { display: none; }
+}
+details.trades-legend { margin-top: -0.25rem; margin-bottom: 0.35rem; }
+details.trades-legend summary { font-size: 0.82rem; }
+
+.fee-diff-ok { color: #9ece9a; }
+.fee-diff-high { color: #e0bc6a; }
+.fee-diff-low { color: #8ec5e0; }
+.fee-stale { color: #cfc08a; }
+
+.trade-edit-block {
+  padding: 0.15rem 0 0.35rem;
+  border-left: 3px solid rgba(212, 175, 55, 0.35);
+  padding-left: 0.65rem;
+  margin-left: -0.15rem;
+}
+.trade-row-editing td {
+  background: rgba(212, 175, 55, 0.06);
+}
+
+/* 盈亏配色：A 股习惯盈利红、亏损绿（与全局 ok/错误提示区分） */
+.pnl-up {
+  color: #e07070;
+  font-weight: 500;
+}
+.pnl-down {
+  color: #7cb87c;
+  font-weight: 500;
+}
+
+.ok {
+  color: #9ece9a;
+  font-weight: 500;
+}
+.error {
+  color: #e8a8b0;
+  font-weight: 500;
+}
+.card.error {
+  border-color: var(--danger-border);
+  background: #181416;
+}

@@ -1,0 +1,29 @@
+---
+description: Markdown/计划文件必须用 UTF-8（无 BOM）；避免自动化写盘导致中文乱码
+alwaysApply: true
+---
+
+# 文档编码（工作区约定）
+
+## 我们遇到过的实际问题
+
+- **`docs/PLAN-phase1.md` 出现乱码**：正文里中文变成「�」或异常字节，YAML 头部里的项目名也会损坏，Git diff 里满屏不可读。
+- **常见根因**（可叠加）：
+  - 用 **UTF-16** 或带 **BOM/错误代码页** 的方式保存 `.md`；
+  - Windows **PowerShell** 默认 `Set-Content`、重定向、`Out-File`（未显式指定 UTF-8）把中文写坏；
+  - 在本环境中通过 **某些自动写文件工具** 整文件写入**含中文**的 Markdown 时，落盘字节与 UTF-8 不一致（表现为 `name:` 后紧跟异常码点、控制字符等垃圾字节）。
+
+## 约定（必须遵守）
+
+- 仓库内 **`*.md`**（含 `docs/`、`README`、计划与说明类文件）一律 **UTF-8**，优先 **无 BOM**。
+- 日常修改：**在 Cursor / VS Code 中打开并保存**，右下角编码选 **UTF-8**；勿用「Unicode / UTF-16」保存计划。
+
+## Agent / 自动化写盘时的做法
+
+- **优先**：让用户在编辑器里保存；或对 **`docs/PLAN-phase1.md` 等长文中文计划** 使用 **补丁式修改**（只改必要片段），避免整文件用不可靠通道重写。
+- **若必须脚本落盘**：用 **明确 UTF-8 无 BOM**，例如 PowerShell：`New-Object System.Text.UTF8Encoding($false)` + `[System.IO.File]::WriteAllText(...)`；或 Node：`fs.writeFileSync(path, content, 'utf8')`。
+- **写完自检**：UTF-8 下「股票」应为字节序列 `E8 82 A1 E7 A5 A8`；若文件头为 `EF BB BF` 则为 UTF-8 BOM（本仓库优先无 BOM）。
+
+## 与产品文档的交叉引用
+
+- `docs/PLAN-phase1.md` 文首已注明 **UTF-8（无 BOM）**；新增章节时保持同一编码。

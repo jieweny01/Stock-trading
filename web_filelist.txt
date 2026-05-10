@@ -1,0 +1,16 @@
+C:\Users\14222\stock-calculator-phase1\web\src\App.tsx
+C:\Users\14222\stock-calculator-phase1\web\src\components
+C:\Users\14222\stock-calculator-phase1\web\src\index.css
+C:\Users\14222\stock-calculator-phase1\web\src\lib
+C:\Users\14222\stock-calculator-phase1\web\src\main.tsx
+C:\Users\14222\stock-calculator-phase1\web\src\vite-env.d.ts
+C:\Users\14222\stock-calculator-phase1\web\src\components\AuthPanel.tsx
+C:\Users\14222\stock-calculator-phase1\web\src\components\FeeSettingsPanel.tsx
+C:\Users\14222\stock-calculator-phase1\web\src\components\HoldingsPanel.tsx
+C:\Users\14222\stock-calculator-phase1\web\src\components\ImportPanel.tsx
+C:\Users\14222\stock-calculator-phase1\web\src\components\LedgerPanel.tsx
+C:\Users\14222\stock-calculator-phase1\web\src\components\SnapshotsPanel.tsx
+C:\Users\14222\stock-calculator-phase1\web\src\components\TradesPanel.tsx
+C:\Users\14222\stock-calculator-phase1\web\src\lib\fees.ts
+C:\Users\14222\stock-calculator-phase1\web\src\lib\holdings.ts
+C:\Users\14222\stock-calculator-phase1\web\src\lib\supabase.ts

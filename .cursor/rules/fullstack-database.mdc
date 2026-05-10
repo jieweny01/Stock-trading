@@ -1,0 +1,15 @@
+---
+description: When a feature touches the DB, update supabase migrations and web together
+alwaysApply: true
+---
+
+# Fullstack database sync
+
+In this repo, when adding or changing features:
+
+1. If persistence changes (tables, columns, indexes, constraints, RLS, views, functions), always:
+   - Add SQL under supabase/migrations/ (prefer IF NOT EXISTS / idempotent).
+   - Update web/ selects, inserts, updates, and types.
+2. Do not change only the frontend when the schema must change.
+3. In the reply: migration file name, and whether MCP apply_migration was used or user must run SQL / supabase db push.
+4. Pure UI with no schema change: no migration.
