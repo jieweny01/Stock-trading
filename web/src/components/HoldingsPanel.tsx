@@ -1404,9 +1404,9 @@ export function HoldingsPanel({
                 <col className="holdings-c-mid" />
                 <col className="holdings-c-pnl" />
                 <col className="holdings-c-px" />
-                <col className="holdings-c-mid" />
-                <col className="holdings-c-mid" />
-                <col className="holdings-c-mid" />
+                <col className="holdings-c-tail" />
+                <col className="holdings-c-tail" />
+                <col className="holdings-c-tail" />
               </colgroup>
               <thead>
                 <tr>

@@ -202,41 +202,61 @@ th {
   margin: 0 0 0.55rem;
 }
 
-/* 持仓与浮动盈亏表：13 列；代码/数量尽量窄，现价/收盘加宽；向右滚动可看全表 */
+/* 持仓与浮动盈亏表：13 列；代码/数量可读；现价/收盘与收市三列不占过多宽 */
 .holdings-table-wrap {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
+  scroll-padding-inline: 6px;
 }
 .holdings-table-wrap .holdings-table {
   width: 100%;
-  min-width: 82rem;
+  min-width: 76rem;
   table-layout: fixed;
   font-size: 0.84rem;
 }
 .holdings-table col.holdings-c-sym {
-  width: 4%;
+  width: 10%;
 }
 .holdings-table col.holdings-c-qty {
-  width: 3.5%;
+  width: 8.25%;
 }
 .holdings-table col.holdings-c-mid {
-  width: 6.75%;
+  width: 7%;
 }
 .holdings-table col.holdings-c-px {
-  width: 14%;
+  width: 9.5%;
 }
 .holdings-table col.holdings-c-pnl {
-  width: 10.5%;
+  width: 12.5%;
 }
-.holdings-table td:nth-child(1) input,
-.holdings-table td:nth-child(2) input {
-  max-width: 5.25rem;
+.holdings-table col.holdings-c-tail {
+  width: 5.083%;
+}
+.holdings-table th:first-child,
+.holdings-table td:first-child {
+  min-width: 6.5rem;
+  padding-left: 0.45rem;
+}
+.holdings-table td:nth-child(1) input {
+  min-width: 5.5rem;
   width: 100%;
-  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
 }
-.holdings-table td.holdings-col-livepx input,
-.holdings-table td.holdings-col-closepx input {
-  min-width: 5rem;
+.holdings-table td:nth-child(2) input {
+  min-width: 4.25rem;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+.holdings-table .holdings-px-input {
+  width: 100%;
+  max-width: 5.75rem;
+  min-width: 3.25rem;
+  box-sizing: border-box;
+  margin-left: auto;
+  margin-right: auto;
+  display: block;
 }
 .holdings-table th {
   white-space: normal;
@@ -259,12 +279,6 @@ th {
 .holdings-table td.holdings-col-livepx,
 .holdings-table td.holdings-col-closepx {
   white-space: nowrap;
-}
-.holdings-table .holdings-px-input {
-  width: 100%;
-  min-width: 0;
-  max-width: none;
-  box-sizing: border-box;
 }
 
 /* 测算多笔模拟 / 户级盈亏小表 */
