@@ -74,12 +74,43 @@ function formatTrackDuration(ms: number): string {
   return `${(ms / 86_400_000).toFixed(1)} 天`
 }
 
+const PNL_UP = '#e07070'
+const PNL_DOWN = '#7cb87c'
+const PNL_MIX = '#e0bc6a'
+
+function colorForTargetPnl(profitLo: number, profitHi: number): string {
+  if (profitLo >= -1e-9 && profitHi >= -1e-9) return PNL_UP
+  if (profitLo <= 1e-9 && profitHi <= 1e-9) return PNL_DOWN
+  return PNL_MIX
+}
+
+function colorForModelBand(
+  lo: number,
+  hi: number,
+  prevClose: number | null,
+): string {
+  if (prevClose == null || !(prevClose > 0)) return '#a68b3c'
+  const mid = (lo + hi) / 2
+  if (mid > prevClose + 1e-9) return PNL_UP
+  if (mid < prevClose - 1e-9) return PNL_DOWN
+  return '#9b9893'
+}
+
 function PriceTrackChart({
   data,
   prevClose,
+  targetBand,
+  modelBand,
 }: {
   data: PriceTrackPoint[]
   prevClose: number | null
+  targetBand?: {
+    lo: number
+    hi: number
+    profitLo: number
+    profitHi: number
+  } | null
+  modelBand?: { lo: number; hi: number } | null
 }) {
   const pc =
     prevClose != null && Number.isFinite(prevClose) && prevClose > 0
@@ -122,10 +153,24 @@ function PriceTrackChart({
 
   const pricePool: number[] = data.map((d) => d.p)
   if (pc != null) pricePool.push(pc)
+  if (targetBand) {
+    pricePool.push(targetBand.lo, targetBand.hi)
+  }
+  if (modelBand) {
+    pricePool.push(modelBand.lo, modelBand.hi)
+  }
+  if (pricePool.length === 0) {
+    return (
+      <p className="muted holdings-track-chart-placeholder" style={{ margin: 0 }}>
+        记入价格或加载<strong>昨收</strong>后显示图表。
+      </p>
+    )
+  }
+
   let pMin = Math.min(...pricePool)
   let pMax = Math.max(...pricePool)
   const spread = pMax - pMin || 1e-9
-  const padY = Math.max(spread * 0.08, 1e-6)
+  const padY = Math.max(spread * 0.06, 1e-6)
   pMin -= padY
   pMax += padY
   const spanT = t1 - t0 || 1
@@ -134,6 +179,44 @@ function PriceTrackChart({
     padT + plotH - ((p - pMin) / (pMax - pMin)) * plotH
 
   const yPrev = pc != null ? yAt(pc) : 0
+
+  const tb =
+    targetBand &&
+    Number.isFinite(targetBand.lo) &&
+    Number.isFinite(targetBand.hi)
+      ? {
+          lo: Math.min(targetBand.lo, targetBand.hi),
+          hi: Math.max(targetBand.lo, targetBand.hi),
+          profitLo: targetBand.profitLo,
+          profitHi: targetBand.profitHi,
+        }
+      : null
+  const mb =
+    modelBand &&
+    Number.isFinite(modelBand.lo) &&
+    Number.isFinite(modelBand.hi)
+      ? {
+          lo: Math.min(modelBand.lo, modelBand.hi),
+          hi: Math.max(modelBand.lo, modelBand.hi),
+        }
+      : null
+
+  const tCol = tb ? colorForTargetPnl(tb.profitLo, tb.profitHi) : PNL_MIX
+  const mCol = mb ? colorForModelBand(mb.lo, mb.hi, pc) : '#a68b3c'
+
+  let labelTy =
+    tb != null
+      ? tb.hi - tb.lo < 1e-8
+        ? yAt(tb.lo) - 5
+        : yAt(tb.hi) + (yAt(tb.lo) - yAt(tb.hi)) / 2 - 5
+      : 0
+  let labelMy =
+    mb != null
+      ? yAt(mb.hi) + (yAt(mb.lo) - yAt(mb.hi)) / 2 + 3
+      : 0
+  if (tb != null && mb != null && Math.abs(labelTy - labelMy) < 14) {
+    labelTy -= 12
+  }
 
   return (
     <svg
@@ -151,6 +234,92 @@ function PriceTrackChart({
         fill="rgba(212, 175, 55, 0.06)"
         stroke="rgba(212, 175, 55, 0.2)"
       />
+      {mb ? (
+        <>
+          {mb.hi - mb.lo < 1e-8 ? (
+            <line
+              x1={padL}
+              x2={padL + plotW}
+              y1={yAt(mb.lo)}
+              y2={yAt(mb.lo)}
+              stroke={mCol}
+              strokeWidth="1.25"
+              strokeDasharray="3 3"
+              opacity={0.9}
+            />
+          ) : (
+            <rect
+              x={padL}
+              y={yAt(mb.hi)}
+              width={plotW}
+              height={Math.max(yAt(mb.lo) - yAt(mb.hi), 1.2)}
+              fill={mCol}
+              fillOpacity={0.12}
+              stroke={mCol}
+              strokeOpacity={0.35}
+              strokeWidth={1}
+            />
+          )}
+          <text
+            x={padL + 6}
+            y={labelMy}
+            fill={mCol}
+            fontSize="9"
+            fontWeight={600}
+            textAnchor="start"
+            style={{
+              paintOrder: 'stroke',
+              stroke: 'rgba(12,12,14,0.92)',
+              strokeWidth: 2,
+            }}
+          >
+            模型 {mb.lo.toFixed(2)}~{mb.hi.toFixed(2)}
+          </text>
+        </>
+      ) : null}
+      {tb ? (
+        <>
+          {tb.hi - tb.lo < 1e-8 ? (
+            <line
+              x1={padL}
+              x2={padL + plotW}
+              y1={yAt(tb.lo)}
+              y2={yAt(tb.lo)}
+              stroke={tCol}
+              strokeWidth="1.35"
+              strokeDasharray="6 4"
+              opacity={0.95}
+            />
+          ) : (
+            <rect
+              x={padL}
+              y={yAt(tb.hi)}
+              width={plotW}
+              height={Math.max(yAt(tb.lo) - yAt(tb.hi), 1.2)}
+              fill={tCol}
+              fillOpacity={0.11}
+              stroke={tCol}
+              strokeOpacity={0.45}
+              strokeWidth={1}
+            />
+          )}
+          <text
+            x={padL + 6}
+            y={labelTy}
+            fill={tCol}
+            fontSize="9"
+            fontWeight={600}
+            textAnchor="start"
+            style={{
+              paintOrder: 'stroke',
+              stroke: 'rgba(12,12,14,0.92)',
+              strokeWidth: 2,
+            }}
+          >
+            目标 {tb.lo.toFixed(2)}~{tb.hi.toFixed(2)}
+          </text>
+        </>
+      ) : null}
       {pc != null ? (
         <>
           <line
@@ -164,11 +333,17 @@ function PriceTrackChart({
             opacity={0.95}
           />
           <text
-            x={padL + plotW - 4}
+            x={padL + 6}
             y={yPrev - 5}
             fill="#5b9ede"
             fontSize="10"
-            textAnchor="end"
+            fontWeight={500}
+            textAnchor="start"
+            style={{
+              paintOrder: 'stroke',
+              stroke: 'rgba(12,12,14,0.9)',
+              strokeWidth: 2,
+            }}
           >
             昨收 {pc.toFixed(4)}
           </text>
@@ -1126,6 +1301,27 @@ export function HoldingsPanel({
                       <PriceTrackChart
                         data={trackSeries}
                         prevClose={effectivePrevClose}
+                        targetBand={
+                          targetPriceRange?.kind === 'ok'
+                            ? {
+                                lo: Math.min(
+                                  targetPriceRange.priceMin,
+                                  targetPriceRange.priceMax,
+                                ),
+                                hi: Math.max(
+                                  targetPriceRange.priceMin,
+                                  targetPriceRange.priceMax,
+                                ),
+                                profitLo: targetPriceRange.profitLo,
+                                profitHi: targetPriceRange.profitHi,
+                              }
+                            : null
+                        }
+                        modelBand={
+                          trackRangeAdvice.kind === 'ok'
+                            ? trackRangeAdvice.modelBand
+                            : null
+                        }
                       />
                     )}
                   </div>
