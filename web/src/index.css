@@ -303,6 +303,21 @@ th {
   margin: 0;
 }
 
+details.holdings-track-help {
+  margin-bottom: 0.5rem;
+}
+details.holdings-track-help summary.holdings-track-help-summary {
+  cursor: pointer;
+  color: var(--gold-muted);
+  font-size: 0.88rem;
+  user-select: none;
+  list-style-position: outside;
+}
+details.holdings-track-help[open] summary.holdings-track-help-summary {
+  color: var(--gold);
+  margin-bottom: 0.15rem;
+}
+
 .holdings-track-layout {
   display: flex;
   flex-wrap: wrap;

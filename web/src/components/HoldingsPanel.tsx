@@ -97,7 +97,8 @@ function PriceTrackChart({
 
   const W = 640
   const H = 200
-  const padL = 44
+  /** 左侧留出图例区，避免与走势线重叠 */
+  const padL = 56
   const padR = 12
   const padT = 22
   const padB = 28
@@ -192,21 +193,23 @@ function PriceTrackChart({
           strokeWidth="1"
         />
       ) : null}
-      <g transform={`translate(${padL + 4}, ${padT + 11})`}>
-        <line x1="0" x2="14" y1="6" y2="6" stroke="#d4af37" strokeWidth="2" />
-        <text x="18" y="10" fill="#9b9893" fontSize="10">
+      <g transform={`translate(3, ${padT + 4})`}>
+        <line x1="0" x2="11" y1="5" y2="5" stroke="#d4af37" strokeWidth="2" />
+        <text x="13" y="8" fill="#9b9893" fontSize="9">
           走势
         </text>
+      </g>
+      <g transform={`translate(3, ${padT + 18})`}>
         <line
-          x1="52"
-          x2="66"
-          y1="6"
-          y2="6"
+          x1="0"
+          x2="11"
+          y1="5"
+          y2="5"
           stroke="#5b9ede"
           strokeWidth="1.5"
-          strokeDasharray="4 3"
+          strokeDasharray="3 2"
         />
-        <text x="70" y="10" fill="#9b9893" fontSize="10">
+        <text x="13" y="8" fill="#9b9893" fontSize="9">
           昨收
         </text>
       </g>
@@ -519,6 +522,8 @@ export function HoldingsPanel({
       vs.length > 0 ? vs[vs.length - 1] : trackPx > 0 ? trackPx : null
 
     const parts: string[] = []
+    let modelBand: { lo: number; hi: number } | null = null
+
     if (live != null && live > 0) {
       const pct = ((live - pc) / pc) * 100
       parts.push(
@@ -542,6 +547,7 @@ export function HoldingsPanel({
         const hiN = pc * (1 + mu + k * sd)
         const loAdj = Math.min(loN, hiN)
         const hiAdj = Math.max(loN, hiN)
+        modelBand = { lo: loAdj, hi: hiAdj }
         parts.push(
           `据 ${vs.length} 个跟踪点的逐步涨跌（均值 ${(mu * 100).toFixed(3)}%、标准差 ${(sd * 100).toFixed(3)}%），粗估名义价参考带约 ${loAdj.toFixed(4)} ~ ${hiAdj.toFixed(4)}（经验带，仅供对照，非投资建议）。`,
         )
@@ -566,7 +572,7 @@ export function HoldingsPanel({
       )
     }
 
-    return { kind: 'ok' as const, parts }
+    return { kind: 'ok' as const, parts, modelBand }
   }, [effectivePrevClose, trackSeries, trackPx])
 
   const [snapDate, setSnapDate] = useState(
@@ -901,11 +907,16 @@ export function HoldingsPanel({
               <h3 className="holdings-trial-h3">现价跟踪</h3>
               <div className="holdings-track-layout">
                 <div className="holdings-track-col-left">
-                  <p className="muted" style={{ marginTop: 0 }}>
-                    仅输入要记录的名义价，<strong>时间自动取当前时刻</strong>
-                    （仅存本机）；点「记一笔」写入一条。蓝色虚线为
-                    <strong>昨收</strong>：默认取最近一条早于今日的估值快照中该代码的收盘，可在上方手填覆盖。
-                  </p>
+                  <details className="holdings-track-help">
+                    <summary className="holdings-track-help-summary">
+                      现价跟踪说明（点击展开）
+                    </summary>
+                    <p className="muted" style={{ marginTop: 8 }}>
+                      仅输入要记录的名义价，<strong>时间自动取当前时刻</strong>
+                      （仅存本机）；点「记一笔」写入一条。蓝色虚线为
+                      <strong>昨收</strong>：默认取最近一条早于今日的估值快照中该代码的收盘，可在上方手填覆盖。
+                    </p>
+                  </details>
                   <div className="row" style={{ alignItems: 'flex-end', flexWrap: 'wrap' }}>
                     <label>
                       记入现价
@@ -1031,6 +1042,77 @@ export function HoldingsPanel({
                         </p>
                       ))
                     )}
+                    {targetPriceRange?.kind === 'ok' &&
+                    trackRangeAdvice.kind === 'ok' &&
+                    trackRangeAdvice.modelBand ? (
+                      <div style={{ marginTop: 12 }}>
+                        <strong style={{ color: 'var(--gold-muted, #b8a06a)' }}>
+                          目标 vs 模型（名义价）
+                        </strong>
+                        <p className="muted" style={{ margin: '6px 0 0' }}>
+                          <strong>目标区间</strong>（由上方「目标盈亏 → 卖出名义价」反推）：{' '}
+                          {Math.min(
+                            targetPriceRange.priceMin,
+                            targetPriceRange.priceMax,
+                          ).toFixed(4)}{' '}
+                          ~{' '}
+                          {Math.max(
+                            targetPriceRange.priceMin,
+                            targetPriceRange.priceMax,
+                          ).toFixed(4)}{' '}
+                          元/股；税后经权盈亏约{' '}
+                          <span
+                            className={
+                              targetPriceRange.profitLo >= 0
+                                ? 'pnl-up'
+                                : 'pnl-down'
+                            }
+                          >
+                            {targetPriceRange.profitLo.toFixed(2)}
+                          </span>
+                          {' ~ '}
+                          <span
+                            className={
+                              targetPriceRange.profitHi >= 0
+                                ? 'pnl-up'
+                                : 'pnl-down'
+                            }
+                          >
+                            {targetPriceRange.profitHi.toFixed(2)}
+                          </span>{' '}
+                          元。
+                        </p>
+                        <p className="muted" style={{ margin: '6px 0 0' }}>
+                          <strong>模型参考带</strong>（由跟踪点波动统计相对昨收粗估，非预测收益金额）：{' '}
+                          {trackRangeAdvice.modelBand.lo.toFixed(4)} ~{' '}
+                          {trackRangeAdvice.modelBand.hi.toFixed(4)} 元/股。
+                        </p>
+                        <p className="muted" style={{ margin: '6px 0 0' }}>
+                          {(() => {
+                            const tLo = Math.min(
+                              targetPriceRange.priceMin,
+                              targetPriceRange.priceMax,
+                            )
+                            const tHi = Math.max(
+                              targetPriceRange.priceMin,
+                              targetPriceRange.priceMax,
+                            )
+                            const mLo = trackRangeAdvice.modelBand.lo
+                            const mHi = trackRangeAdvice.modelBand.hi
+                            const ov =
+                              Math.min(tHi, mHi) >= Math.max(tLo, mLo) - 1e-9
+                            return ov
+                              ? '两区间在名义价轴上有重叠，目标卖价与近期节奏推断的参考带可同时参考。'
+                              : '两区间在名义价轴上未重叠：目标卖价与模型参考带差距较大，可结合仓位与风控再斟酌。'
+                          })()}
+                        </p>
+                      </div>
+                    ) : targetPriceRange?.kind === 'ok' ? (
+                      <p className="muted" style={{ margin: '10px 0 0' }}>
+                        填写「目标盈亏」上下限且至少有 <strong>2</strong>{' '}
+                        个现价跟踪点后，可在此对照<strong>目标卖出名义价</strong>与<strong>模型参考带</strong>。
+                      </p>
+                    ) : null}
                   </div>
                 </div>
                 <div className="holdings-track-col-right">
