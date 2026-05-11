@@ -1,6 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { useCallback, useEffect, useMemo, useState, Fragment } from 'react'
 import type { Trade } from '../lib/holdings'
+import { positionsCurrent } from '../lib/holdings'
 import {
   defaultFeeParams,
   estimateFees,
@@ -13,6 +14,7 @@ import {
   actualFeesSum,
   runFeeCalibrationForMarket,
 } from '../lib/tradeCalibration'
+import { realizedPnlForNewSell } from '../lib/tradeSimulation'
 
 function rowMarket(t: Trade): Market {
   return t.market ?? 'CN_A'
@@ -414,9 +416,33 @@ export function TradesPanel({
     if (error) onMessage(error.message)
     else {
       onMessage('ok: 已保存（有实付分项时会更新费校准系数）')
-      void load()
       const { data: u } = await supabase.auth.getUser()
-      if (u.user) {
+      if (u?.user && form.side === 'sell') {
+        const symU = form.symbol.trim().toUpperCase()
+        const posMap = positionsCurrent(rows)
+        const pos = posMap.get(symU)
+        const pnl = realizedPnlForNewSell(pos, qty, amount, est.total)
+        if (pnl != null) {
+          const { error: le } = await supabase
+            .from('account_ledger_snapshot')
+            .insert({
+              portfolio_id: portfolioId,
+              user_id: u.user.id,
+              as_of_date: form.trade_date,
+              invested_total: null,
+              recovered_total: null,
+              fees_total: null,
+              period_realized_pnl: pnl,
+              period_note: `自动：卖出 ${symU} ×${qty}，估算费 ${est.total.toFixed(2)}`,
+            })
+          if (le)
+            onMessage(
+              `流水已保存，但户级盈亏记录失败（是否已执行库迁移？）：${le.message}`,
+            )
+        }
+      }
+      void load()
+      if (u?.user) {
         void runFeeCalibrationForMarket(supabase, {
           userId: u.user.id,
           portfolioId,

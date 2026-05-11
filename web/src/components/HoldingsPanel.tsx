@@ -24,6 +24,7 @@ import {
   type Market,
 } from '../lib/fees'
 import { fetchMergedFeeParams } from '../lib/feeParamsLoad'
+import { TrialLegsSimulation } from './TrialLegsSimulation'
 
 async function fetchLatestSnapshotCloseBeforeToday(
   supabase: SupabaseClient,
@@ -771,6 +772,9 @@ export function HoldingsPanel({
             />
           </label>
         </div>
+
+        <TrialLegsSimulation defaultMarket={focusMkt} feeByMkt={feeByMkt} />
+
         {!focusPos || focusPos.quantity <= 0 ? (
           <p className="muted" style={{ marginTop: 8 }}>
             当前组合里没有该代码的持仓。
