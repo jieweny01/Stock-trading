@@ -240,7 +240,15 @@ export function TrialLegsSimulation({
             </p>
             <p className="muted" style={{ marginTop: 4 }}>
               模拟结束后持仓 {summary.finalQty.toFixed(4)} 股，剩余成本{' '}
-              {summary.finalCostRemaining.toFixed(2)}。
+              {summary.finalCostRemaining.toFixed(2)}
+              {summary.breakevenPx != null && (
+                <>
+                  {' '}
+                  · 保本名义价约{' '}
+                  <strong>{summary.breakevenPx.toFixed(4)}</strong> 元/股
+                </>
+              )}
+              。
             </p>
           </div>
         </>

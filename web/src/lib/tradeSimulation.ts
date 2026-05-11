@@ -1,4 +1,10 @@
-import { estimateFees, round2, type FeeParams, type Market } from './fees'
+import {
+  estimateFees,
+  round2,
+  sellPriceForTargetNetProceed,
+  type FeeParams,
+  type Market,
+} from './fees'
 import type { LotPosition } from './holdings'
 
 export type SimLegInput = {
@@ -27,6 +33,8 @@ export type SimLegsSummary = {
   totalRealized: number
   finalQty: number
   finalCostRemaining: number
+  /** 模拟结束后若有持仓：全额卖出且税后回款刚好覆盖剩余成本所需名义价（元/股），与测算区一致 */
+  breakevenPx: number | null
   error?: string
 }
 
@@ -63,6 +71,7 @@ export function simulateSequentialLegs(
         totalRealized: 0,
         finalQty: qty,
         finalCostRemaining: costRem,
+        breakevenPx: null,
         error: '存在无效的模拟行',
       }
     }
@@ -104,6 +113,7 @@ export function simulateSequentialLegs(
           totalRealized: 0,
           finalQty: qty,
           finalCostRemaining: costRem,
+          breakevenPx: null,
           error: '卖出数量超过当前模拟持仓',
         }
       }
@@ -131,6 +141,10 @@ export function simulateSequentialLegs(
   }
 
   const netCash = round2(results.reduce((s, r) => s + r.cashFlow, 0))
+  const breakevenPx =
+    qty > 1e-8
+      ? sellPriceForTargetNetProceed(costRem, qty, market, feeP)
+      : null
   return {
     results,
     totalFees,
@@ -138,6 +152,7 @@ export function simulateSequentialLegs(
     totalRealized,
     finalQty: qty,
     finalCostRemaining: costRem,
+    breakevenPx,
   }
 }
 
