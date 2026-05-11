@@ -1060,6 +1060,11 @@ export function HoldingsPanel({
         {snapRows.length > 0 && (
           <div className="holdings-table-wrap" style={{ marginTop: 12 }}>
             <table className="holdings-table">
+              <colgroup>
+                {Array.from({ length: 14 }, (_, i) => (
+                  <col key={i} />
+                ))}
+              </colgroup>
               <thead>
                 <tr>
                   <th>代码</th>
@@ -1071,7 +1076,7 @@ export function HoldingsPanel({
                   <th>毛市值</th>
                   <th>预估卖出费</th>
                   <th>税后市值</th>
-                  <th>浮动盈亏</th>
+                  <th className="holdings-col-pnl">浮动盈亏</th>
                   <th className="holdings-col-closepx">收盘</th>
                   <th>收市毛市值</th>
                   <th>收市卖出费</th>
@@ -1175,7 +1180,7 @@ export function HoldingsPanel({
                         {liveSellEst ? liveSellEst.total.toFixed(2) : '-'}
                       </td>
                       <td>{liveNet ? liveNet.toFixed(2) : '-'}</td>
-                      <td>
+                      <td className="holdings-col-pnl">
                         {costForQty != null ? (
                           <span
                             className={pnl >= 0 ? 'pnl-up' : 'pnl-down'}

@@ -202,29 +202,46 @@ th {
   margin: 0 0 0.55rem;
 }
 
-/* 持仓表：现价列收窄（输入不必拉满格） */
+/* 持仓与浮动盈亏表：14 列约等宽，表头可换行；必要时横向滚动以完整显示 */
 .holdings-table-wrap {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
 }
 .holdings-table-wrap .holdings-table {
-  min-width: 56rem;
-  table-layout: auto;
-}
-.holdings-table {
-  table-layout: fixed;
   width: 100%;
+  min-width: 70rem;
+  table-layout: fixed;
+  font-size: 0.84rem;
 }
-.holdings-table .holdings-col-livepx,
-.holdings-table .holdings-col-closepx {
-  width: 5.5rem;
-  max-width: 6rem;
+.holdings-table col {
+  width: calc(100% / 14);
+}
+.holdings-table th {
+  white-space: normal;
+  word-break: keep-all;
+  line-height: 1.25;
+  padding: 0.36rem 0.42rem;
+  font-size: 0.8rem;
+}
+.holdings-table td {
+  padding: 0.36rem 0.42rem;
+  vertical-align: middle;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  overflow: visible;
+}
+.holdings-table td.holdings-col-pnl,
+.holdings-table th.holdings-col-pnl {
+  white-space: normal;
+}
+.holdings-table td.holdings-col-livepx,
+.holdings-table td.holdings-col-closepx {
   white-space: nowrap;
 }
 .holdings-table .holdings-px-input {
   width: 100%;
-  max-width: 5.25rem;
   min-width: 0;
+  max-width: none;
   box-sizing: border-box;
 }
 
