@@ -132,6 +132,8 @@ function holdingsPxKey(portfolioId: string) {
 export type HoldingsPricesBlob = {
   table: Record<string, string>
   focusPrice: string
+  /** 测算区选中的代码（本地持久化，可选） */
+  focusSymbol?: string
 }
 
 export function loadHoldingsPricesBlob(portfolioId: string): HoldingsPricesBlob {
@@ -145,14 +147,16 @@ export function loadHoldingsPricesBlob(portfolioId: string): HoldingsPricesBlob 
     const tableRaw = rec.table
     const focusPrice =
       typeof rec.focusPrice === 'string' ? rec.focusPrice : ''
+    const focusSymbol =
+      typeof rec.focusSymbol === 'string' ? rec.focusSymbol : undefined
     if (!tableRaw || typeof tableRaw !== 'object') {
-      return { table: {}, focusPrice }
+      return { table: {}, focusPrice, focusSymbol }
     }
     const table: Record<string, string> = {}
     for (const [k, v] of Object.entries(tableRaw)) {
       if (typeof v === 'string') table[k.toUpperCase()] = v
     }
-    return { table, focusPrice }
+    return { table, focusPrice, focusSymbol }
   } catch {
     return empty
   }

@@ -239,8 +239,12 @@ export function HoldingsPanel({
   const [focusSym, setFocusSym] = useState('')
   const [focusPrice, setFocusPrice] = useState('')
   const hydratedPid = useRef<string | null>(null)
-  /** 切换测算「代码」时，用表格里该代码的现价填充测算框（避免与手动输入打架） */
-  const trialPriceSyncSym = useRef<string | null>(null)
+  /** 切换组合后仅在首次有持仓且本地无记住代码时默认第一只 */
+  const shouldDefaultFocusSymRef = useRef(true)
+  /** 上一次已为试算现价建立过联动关系的代码（大写） */
+  const lastPriceFocusSymRef = useRef('')
+  /** 正在为「无本地记住代码」用户写入默认第一只，避免误清空已恢复的试算价 */
+  const defaultingFocusSymRef = useRef(false)
 
   useEffect(() => {
     void (async () => {
@@ -285,21 +289,55 @@ export function HoldingsPanel({
     setPrices(b.table)
     setFocusPrice(b.focusPrice)
     hydratedPid.current = portfolioId
-    trialPriceSyncSym.current = null
+    defaultingFocusSymRef.current = false
+    const restored = (b.focusSymbol ?? '').trim()
+    setFocusSym(restored)
+    lastPriceFocusSymRef.current = restored.toUpperCase()
+    shouldDefaultFocusSymRef.current = !restored
   }, [portfolioId])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
+    if (hydratedPid.current !== portfolioId) return
     if (list.length === 0) return
-    const u = focusSym.trim().toUpperCase()
-    if (!u || !list.some((x) => x.symbol === u)) setFocusSym(list[0].symbol)
-  }, [list, focusSym])
+    if (!shouldDefaultFocusSymRef.current) return
+    shouldDefaultFocusSymRef.current = false
+    const sym = list[0].symbol
+    const up = sym.trim().toUpperCase()
+    defaultingFocusSymRef.current = true
+    lastPriceFocusSymRef.current = up
+    setFocusSym(sym)
+  }, [list, portfolioId])
 
+  /** 与表格该行现价联动；切换代码时按表格价刷新，无表价则清空（默认首只时保留本地已恢复的试算价） */
   useEffect(() => {
     const u = focusSym.trim().toUpperCase()
-    if (!u || !list.some((x) => x.symbol === u)) return
-    if (trialPriceSyncSym.current !== u) {
-      trialPriceSyncSym.current = u
-      setFocusPrice(prices[u] ?? '')
+    if (!u) return
+    if (!list.some((x) => x.symbol === u)) return
+
+    const fromTable = prices[u] ?? ''
+
+    if (defaultingFocusSymRef.current && u !== lastPriceFocusSymRef.current) {
+      defaultingFocusSymRef.current = false
+    }
+
+    if (
+      defaultingFocusSymRef.current &&
+      u === lastPriceFocusSymRef.current
+    ) {
+      defaultingFocusSymRef.current = false
+      if (fromTable !== '') setFocusPrice(fromTable)
+      return
+    }
+
+    const symSwitch = lastPriceFocusSymRef.current !== u
+    lastPriceFocusSymRef.current = u
+
+    if (fromTable !== '') {
+      setFocusPrice(fromTable)
+      return
+    }
+    if (symSwitch) {
+      setFocusPrice('')
     }
   }, [focusSym, list, prices])
 
@@ -561,8 +599,9 @@ export function HoldingsPanel({
     saveHoldingsPricesBlob(portfolioId, {
       table: pruned,
       focusPrice,
+      focusSymbol: focusSym.trim() || undefined,
     })
-  }, [portfolioId, prices, focusPrice, list, snapRows, snapLedger])
+  }, [portfolioId, prices, focusPrice, focusSym, list, snapRows, snapLedger])
 
   /** 日期或流水变化时，按该日持仓刷新行；同代码已填的收盘价会保留；非流水持仓的手工行保留在表末 */
   useEffect(() => {
@@ -693,6 +732,7 @@ export function HoldingsPanel({
           剩余成本与流水一致；浮动盈亏/<strong>目标反推</strong>均按费参数做
           <strong>全额卖出</strong>、扣卖出侧预估费后的<strong>税后</strong>口径。
           下方<strong>现价跟踪</strong>将测算名义价按时间记在本地浏览器。
+          <strong>代码</strong>可从列表选择或手输，会与试算现价一并记入本机。
         </p>
         <div className="row">
           <label>
@@ -701,7 +741,14 @@ export function HoldingsPanel({
               list="holdings-symbols"
               value={focusSym}
               placeholder="如 600000"
-              onChange={(e) => setFocusSym(e.target.value.toUpperCase())}
+              onChange={(e) => {
+                const v = e.target.value.toUpperCase()
+                setFocusSym(v)
+                if (!v.trim()) {
+                  setFocusPrice('')
+                  lastPriceFocusSymRef.current = ''
+                }
+              }}
             />
             <datalist id="holdings-symbols">
               {list.map((p) => (
