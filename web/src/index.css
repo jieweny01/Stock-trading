@@ -202,7 +202,7 @@ th {
   margin: 0 0 0.55rem;
 }
 
-/* 持仓与浮动盈亏表：14 列约等宽，表头可换行；必要时横向滚动以完整显示 */
+/* 持仓与浮动盈亏表：13 列，代码/数量收窄，现价/收盘加宽；必要时横向滚动 */
 .holdings-table-wrap {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
@@ -213,8 +213,20 @@ th {
   table-layout: fixed;
   font-size: 0.84rem;
 }
-.holdings-table col {
-  width: calc(100% / 14);
+.holdings-table col.holdings-c-sym {
+  width: 5.5%;
+}
+.holdings-table col.holdings-c-qty {
+  width: 4.5%;
+}
+.holdings-table col.holdings-c-mid {
+  width: 7%;
+}
+.holdings-table col.holdings-c-px {
+  width: 12%;
+}
+.holdings-table col.holdings-c-pnl {
+  width: 10%;
 }
 .holdings-table th {
   white-space: normal;

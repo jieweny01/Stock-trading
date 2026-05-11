@@ -1108,14 +1108,23 @@ export function HoldingsPanel({
           <div className="holdings-table-wrap" style={{ marginTop: 12 }}>
             <table className="holdings-table">
               <colgroup>
-                {Array.from({ length: 14 }, (_, i) => (
-                  <col key={i} />
-                ))}
+                <col className="holdings-c-sym" />
+                <col className="holdings-c-qty" />
+                <col className="holdings-c-mid" />
+                <col className="holdings-c-mid" />
+                <col className="holdings-c-px" />
+                <col className="holdings-c-mid" />
+                <col className="holdings-c-mid" />
+                <col className="holdings-c-mid" />
+                <col className="holdings-c-pnl" />
+                <col className="holdings-c-px" />
+                <col className="holdings-c-mid" />
+                <col className="holdings-c-mid" />
+                <col className="holdings-c-mid" />
               </colgroup>
               <thead>
                 <tr>
                   <th>代码</th>
-                  <th>市场</th>
                   <th>数量</th>
                   <th>摊薄成本</th>
                   <th>剩余成本</th>
@@ -1188,7 +1197,6 @@ export function HoldingsPanel({
                           }}
                         />
                       </td>
-                      <td>{sym ? mkt : '-'}</td>
                       <td>
                         <input
                           value={r.quantity || ''}
