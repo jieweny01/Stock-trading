@@ -1109,7 +1109,11 @@ export function HoldingsPanel({
 
         {snapRows.length === 0 && <p className="muted">暂无持仓。</p>}
         {snapRows.length > 0 && (
-          <div className="holdings-table-wrap" style={{ marginTop: 12 }}>
+          <>
+          <p className="muted" style={{ fontSize: '0.8rem', marginBottom: 6 }}>
+            列较多时请<strong>横向滑动</strong>或拉宽窗口，右侧为现价、收盘与收市估值。线上若仍为旧版界面，请强制刷新（Ctrl+F5）或确认 GitHub Actions 部署已完成。
+          </p>
+          <div className="holdings-table-wrap" style={{ marginTop: 0 }}>
             <table className="holdings-table">
               <colgroup>
                 <col className="holdings-c-sym" />
@@ -1281,6 +1285,7 @@ export function HoldingsPanel({
               </tbody>
             </table>
           </div>
+          </>
         )}
       </div>
     </div>
